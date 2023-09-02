@@ -1,42 +1,36 @@
-import PropTypes from "prop-types";
 import { OverLay } from "components/Overlay/Overlay";
-import { Component } from "react";
+import { useEffect } from "react";
 import { createPortal } from "react-dom";
 
 const modal_root = document.getElementById('root');
 
-export class Modal extends Component {
-  static propTypes = {
-    onClick: PropTypes.string,
-    closeModal: PropTypes.func,
-  };
+export const Modal = ({closeModal, alt, src}) => {
 
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleEscape);
-  }
+  useEffect(() => {
+   
+    const handleEscape = e => {
+      if (e.key === 'Escape') {
+        closeModal({ src: '', alt: '' });
+      }
+    };
+    
+    window.addEventListener('keydown', handleEscape);
+    return () => {
+      window.removeEventListener('keydown', handleEscape);
+    };
+  }, [closeModal]);  
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleEscape);
-  }
+    const handleOverLay = e => {
+      if (e.target === e.currentTarget) {
+        closeModal({ src: '', alt: '' });
+      }
+    };
 
-  handleOverLay = e => {
-    if (e.target === e.currentTarget) {
-      this.props.closeModal({ src: '', alt: '' });
-    }
-  };
-
-  handleEscape = e => {
-    if (e.key === 'Escape') {
-      this.props.closeModal({ src: '', alt: '' });
-    }
-  };
-
-  render() {
-    const { src, alt } = this.props;
+  
     return (
       <>
         {createPortal(
-          <OverLay onClick={this.handleOverLay}>
+          <OverLay onClick={handleOverLay}>
             <img src={src} alt={alt} width="70%" />
           </OverLay>,
           modal_root
@@ -44,4 +38,3 @@ export class Modal extends Component {
       </>
     );
   }
-}

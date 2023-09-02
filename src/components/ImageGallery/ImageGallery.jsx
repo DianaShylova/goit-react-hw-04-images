@@ -7,7 +7,7 @@ export const ImageGallery = ({ hits, openModal }) => {
       <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', listStyle: 'none' }}>
         {hits.map(({ id, webformatURL, largeImageURL, tags }) => (
           <ImageGalleryItem
-            key={id}
+            id={id}
             webformatURL={webformatURL}
             largeImageURL={largeImageURL}
             tags={tags}
