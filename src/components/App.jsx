@@ -8,79 +8,71 @@ import { LoadMoreButton } from "./Button/Button";
 import css from "./App.module.css";
 
 export const App = () => {
-  const [pics, setPics] = useState([]);
-  const [params, setParams] = useState({
-    query: '',
-    page: 1,
-  });
-  const [status, setStatus] = useState({
-    isError: '',
-    isLoading: false,
-  }); 
+  const [hits, setHits] = useState([]);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState('');
+  const [isError, setIsError] = useState('');
+  const [isLoading, setIsLoading] = useState(false); 
   const [isEmpty, setIsEmpty] = useState(false);
   const [showBtn, setShowBtn] = useState(false);
-  const [modal, setModal] = useState({
-    src: '',
-    alt: '',
-  });
+  const [src, setSrc] = useState('');
+  const [alt, setAlt] = useState('');
   
   useEffect(() => {
-    const { query, page } = params;
-    if (query === '') return;
-      setStatus({ isLoading: true, isError: ''});
+    
+    if (!query){
+      return;
+    }
+     /*  setStatus({ isLoading: true, isError: ''}) */;
       getImages(query, page)
         .then(({ hits, totalHits }) => {
           if (!totalHits) {
             setIsEmpty(true) ;
             return;
           }
-          setPics([...pics, ...hits]);
-          setShowBtn(params.page < Math.ceil(totalHits / 12));         
+          setHits(prevState => [...prevState, ...hits]);
+          setShowBtn(page < Math.ceil(totalHits / 12));         
         })
-        .catch(error => {
-          setStatus({ isError: error.message, isLoading: false });
+        .catch(isError => {
+          setIsError( isError.message);
         })
         .finally(() => {
-         setStatus({ isError: "", isLoading: false });
+         setIsLoading(false);
         });
    
-    }, [params.query]);
+    }, [query, page]);
   
   
  
 
   const changeQuery = query => {
-    setPics([]);
-    setStatus({
-      isError: '',
-      isLoading: false,
-    });
+
+    setQuery(query);
+    setHits([]);
+    setPage(1);
     setIsEmpty(false);
-    setParams({
-      query,
-      page: 1,
-    });   
-    
+    setIsError('');
   };
 
   const loadMore = () => {
-    setParams({...params, page: params.page + 1});
+    setPage(prevState => prevState + 1);
   };
 
   const handleOpenModal = ({ src, alt }) => {
-    setModal({ src, alt });
+    setSrc(src);
+    setAlt(alt);
   };
 
   
     return (
       <div className={css.app_container}>
         <Searchbar onChangeQuery={changeQuery} />
-        <ImageGallery hits={pics} openModal={handleOpenModal} />
+        <ImageGallery hits={hits} openModal={handleOpenModal} />
         {showBtn && <LoadMoreButton handleClick={loadMore} text="Load more" />}
         {isEmpty && <p>Sorry we nothing find😭</p>}
-        {status.isError && <p>{status.isError}😭</p>}
-        {modal.src && <Modal closeModal={handleOpenModal} src={modal.src} alt={modal.alt} />}
-        {status.isLoading && <Loader />}
+        {isError && <p>{isError}😭</p>}
+        {src && <Modal closeModal={handleOpenModal} src={src} alt={alt} />}
+        {isLoading && <Loader />}
       </div>
     );
   
